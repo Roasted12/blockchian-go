@@ -1,0 +1,12 @@
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\model\Transaction.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\crypto\ECDSASigner.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\crypto\HashUtil.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\config\CorsConfig.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\config\CryptoConfig.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\model\TxOut.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\WalletApplication.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\client\GoNodeClient.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\crypto\KeyGenerator.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\model\TxIn.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\controller\WalletController.java
+D:\University\Projects\ai-blockchain\java-wallet\src\main\java\com\example\wallet\service\WalletService.java

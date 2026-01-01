@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+go:
+  node:
+    url: http://localhost:8080
+
+spring:
+  application:
+    name: java-wallet
+

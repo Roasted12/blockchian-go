@@ -1,0 +1,32 @@
+{
+    // Python interpreter settings
+    "python.defaultInterpreterPath": "${workspaceFolder}/ai-scorer/.venv/bin/python",
+    
+    // Auto-activate conda environment in terminal
+    "python.terminal.activateEnvironment": true,
+    
+    // Conda environment path (update this to your conda path)
+    // Windows example: "C:\\Users\\YourName\\anaconda3\\envs\\ai-blockchain-scorer\\python.exe"
+    // Or use: "${env:CONDA_PREFIX}/python.exe" if conda is activated
+    
+    // Python linting
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    
+    // Auto-format on save
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    
+    // File associations
+    "files.associations": {
+        "*.yml": "yaml",
+        "*.yaml": "yaml"
+    }
+}
+

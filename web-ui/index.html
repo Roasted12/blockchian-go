@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Blockchain Explorer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 AI Blockchain Explorer</h1>
+            <p class="subtitle">Multi-language blockchain with AI scoring</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="showTab('blocks')">Blocks</button>
+            <button class="tab" onclick="showTab('transactions')">Transactions</button>
+            <button class="tab" onclick="showTab('wallet')">Wallet</button>
+            <button class="tab" onclick="showTab('mine')">Mine</button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Blockchain Status</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Chain Height</h3>
+                    <p id="chain-height" class="stat-value">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Mempool Size</h3>
+                    <p id="mempool-size" class="stat-value">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Difficulty</h3>
+                    <p id="difficulty" class="stat-value">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Last Block Hash</h3>
+                    <p id="last-hash" class="stat-value-small">-</p>
+                </div>
+            </div>
+            <button onclick="refreshDashboard()" class="btn-primary">Refresh</button>
+        </div>
+
+        <!-- Blocks Tab -->
+        <div id="blocks" class="tab-content">
+            <h2>Blockchain</h2>
+            <button onclick="loadBlocks()" class="btn-primary">Load Blocks</button>
+            <div id="blocks-list" class="blocks-container"></div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactions" class="tab-content">
+            <h2>Mempool Transactions</h2>
+            <button onclick="loadMempool()" class="btn-primary">Refresh Mempool</button>
+            <div id="mempool-list" class="transactions-container"></div>
+        </div>
+
+        <!-- Wallet Tab -->
+        <div id="wallet" class="tab-content">
+            <h2>My Wallets</h2>
+            
+            <!-- Wallet List -->
+            <div class="wallet-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Your Wallets</h3>
+                    <button onclick="loadWallets()" class="btn-primary">🔄 Refresh</button>
+                </div>
+                <button onclick="generateAddress()" class="btn-primary" style="margin-bottom: 15px;">➕ Generate New Wallet</button>
+                <div id="wallets-list" class="wallets-container"></div>
+            </div>
+
+            <!-- Send Section -->
+            <div class="wallet-section">
+                <h3>💸 Send Coins</h3>
+                <label for="send-from">From Wallet:</label>
+                <select id="send-from" class="input-field" onchange="updateSendFromBalance()">
+                    <option value="">Select a wallet...</option>
+                </select>
+                <div id="send-from-balance" style="margin: 5px 0; color: #666; font-size: 0.9em;"></div>
+                
+                <label for="send-to" style="margin-top: 15px; display: block;">To Address:</label>
+                <input type="text" id="send-to" placeholder="Enter recipient address" class="input-field">
+                <button onclick="fillRecipientFromWallets()" class="btn-primary" style="margin: 5px 0;">📋 Use Another Wallet</button>
+                
+                <label for="send-amount" style="margin-top: 15px; display: block;">Amount:</label>
+                <input type="number" id="send-amount" placeholder="0.00" class="input-field" step="0.01" min="0.01">
+                
+                <button onclick="sendTransaction()" class="btn-primary" style="margin-top: 15px; width: 100%;">🚀 Send Transaction</button>
+                <div id="send-result" class="result-box" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- Receive Section -->
+            <div class="wallet-section">
+                <h3>📥 Receive Coins</h3>
+                <label for="receive-address">Your Address:</label>
+                <select id="receive-address" class="input-field" onchange="updateReceiveInfo()">
+                    <option value="">Select a wallet to receive...</option>
+                </select>
+                <div id="receive-info" class="result-box" style="margin-top: 15px;">
+                    <p style="color: #666;">Select a wallet above to see your receive address</p>
+                </div>
+                <div id="receive-balance" style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 6px; display: none;">
+                    <strong>Current Balance:</strong> <span id="receive-balance-value">0</span> coins
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="wallet-section">
+                <h3>⚡ Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button onclick="checkAllBalances()" class="btn-primary">💰 Check All Balances</button>
+                    <button onclick="copyGenesisAddress()" class="btn-primary">📋 Copy Genesis Address</button>
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.9em;">
+                    <strong>💡 Tip:</strong> The genesis address <code style="font-size: 0.8em;">0000000000000000000000000000000000000000</code> has 1000 coins. 
+                    You can send from it to your wallet!
+                </div>
+            </div>
+        </div>
+
+        <!-- Mine Tab -->
+        <div id="mine" class="tab-content">
+            <h2>Mine Block</h2>
+            <p>Mine a new block from pending transactions in the mempool.</p>
+            <button onclick="mineBlock()" class="btn-mine">⛏️ Mine Block</button>
+            <div id="mine-result" class="result-box"></div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="status-message"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

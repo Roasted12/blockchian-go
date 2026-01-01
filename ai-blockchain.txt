@@ -1,0 +1,145 @@
+ai-blockchain/
+│
+├── README.md
+│
+├── schemas/                         # 🔑 Shared cross-language contracts
+│   ├── tx.schema.json
+│   ├── block.schema.json
+│   ├── score.schema.json
+│   └── README.md                    # Schema rules & canonicalization notes
+│
+├── go-node/                         # Core blockchain node (Go)
+│   ├── go.mod
+│   ├── go.sum
+│   │
+│   ├── cmd/
+│   │   └── node/
+│   │       └── main.go              # Entry point
+│   │
+│   ├── internal/
+│   │   ├── chain/                   # Blockchain data structures
+│   │   │   ├── block.go
+│   │   │   ├── tx.go
+│   │   │   ├── tx_in.go
+│   │   │   ├── tx_out.go
+│   │   │   ├── utxo.go               # Or account.go (later choice)
+│   │   │   ├── validation.go
+│   │   │   └── serialization.go
+│   │   │
+│   │   ├── crypto/                  # Cryptographic primitives
+│   │   │   ├── hash.go
+│   │   │   ├── merkle.go
+│   │   │   ├── ecdsa.go
+│   │   │   └── encoding.go           # hex/base64 helpers
+│   │   │
+│   │   ├── consensus/
+│   │   │   ├── pow.go
+│   │   │   ├── poa.go
+│   │   │   └── difficulty.go
+│   │   │
+│   │   ├── mempool/
+│   │   │   ├── mempool.go
+│   │   │   ├── prioritizer.go
+│   │   │   └── quarantine.go
+│   │   │
+│   │   ├── p2p/
+│   │   │   ├── peer.go
+│   │   │   ├── gossip.go
+│   │   │   ├── messages.go
+│   │   │   ├── discovery.go
+│   │   │   └── reorg.go
+│   │   │
+│   │   ├── api/
+│   │   │   ├── server.go
+│   │   │   ├── tx_handler.go
+│   │   │   ├── block_handler.go
+│   │   │   └── peer_handler.go
+│   │   │
+│   │   ├── storage/
+│   │   │   ├── memory.go             # Initial in-memory store
+│   │   │   ├── leveldb.go             # Later swap
+│   │   │   └── badger.go
+│   │   │
+│   │   ├── ai/
+│   │   │   ├── client.go              # Calls Python scorer
+│   │   │   ├── features.go
+│   │   │   └── circuit_breaker.go
+│   │   │
+│   │   └── metrics/
+│   │       ├── metrics.go
+│   │       └── logging.go
+│   │
+│   └── tests/
+│       ├── crypto_test.go
+│       ├── merkle_test.go
+│       ├── tx_validation_test.go
+│       ├── fork_choice_test.go
+│       └── integration_test.go
+│
+├── java-wallet/                     # Wallet + explorer (Java Spring Boot)
+│   ├── pom.xml
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/example/wallet/
+│   │   │   │   ├── WalletApplication.java
+│   │   │   │   │
+│   │   │   │   ├── crypto/
+│   │   │   │   │   ├── KeyGenerator.java
+│   │   │   │   │   ├── ECDSASigner.java
+│   │   │   │   │   └── HashUtil.java
+│   │   │   │   │
+│   │   │   │   ├── client/
+│   │   │   │   │   ├── GoNodeClient.java
+│   │   │   │   │   └── DtoMapper.java
+│   │   │   │   │
+│   │   │   │   ├── controller/
+│   │   │   │   │   ├── WalletController.java
+│   │   │   │   │   └── ExplorerController.java
+│   │   │   │   │
+│   │   │   │   └── model/
+│   │   │   │       ├── Tx.java
+│   │   │   │       ├── TxIn.java
+│   │   │   │       ├── TxOut.java
+│   │   │   │       └── Block.java
+│   │   │   │
+│   │   │   └── resources/
+│   │   │       └── application.yml
+│   │   │
+│   │   └── test/java/com/example/wallet/
+│   │       ├── CryptoTest.java
+│   │       └── IntegrationTest.java
+│
+├── ai-scorer/                       # Advisory AI service (Python)
+│   ├── requirements.txt
+│   ├── app/
+│   │   ├── api.py
+│   │   ├── schemas.py               # Mirrors /schemas
+│   │   │
+│   │   ├── models/
+│   │   │   ├── tx_anomaly.py         # IsolationForest
+│   │   │   └── peer_reliability.py   # EWMA / thresholds
+│   │   │
+│   │   ├── features/
+│   │   │   ├── tx_features.py
+│   │   │   └── peer_features.py
+│   │   │
+│   │   └── utils/
+│   │       ├── normalizer.py
+│   │       └── logger.py
+│   │
+│   └── tests/
+│       ├── test_tx_scoring.py
+│       └── test_peer_scoring.py
+│
+├── scripts/
+│   ├── gen_keys.sh
+│   ├── start_go_node.sh
+│   ├── start_java_wallet.sh
+│   └── start_ai_scorer.sh
+│
+└── docs/
+    ├── architecture.md
+    ├── consensus.md
+    ├── schemas.md
+    ├── ai-integration.md
+    └── threat-model.md

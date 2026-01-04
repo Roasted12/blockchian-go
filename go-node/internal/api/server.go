@@ -41,9 +41,9 @@ type Server struct {
 	blockchain *chain.Blockchain
 	mempool    *chain.Mempool
 	aiClient   *ai.Client
-	walletStore *wallet.WalletStore
 	difficulty int
 	port       string
+	walletStore *wallet.WalletStore
 }
 
 //
@@ -53,7 +53,6 @@ type Server struct {
 // - blockchain: The blockchain instance
 // - mempool: The mempool instance
 // - aiClient: AI scoring client (can be nil if AI is disabled)
-// - walletStore: Wallet store for managing wallets
 // - difficulty: Mining difficulty
 // - port: Server port (e.g., "8080")
 //
@@ -61,17 +60,17 @@ func NewServer(
 	blockchain *chain.Blockchain,
 	mempool *chain.Mempool,
 	aiClient *ai.Client,
-	walletStore *wallet.WalletStore,
 	difficulty int,
 	port string,
+	walletStore *wallet.WalletStore,
 ) *Server {
 	return &Server{
-		blockchain:  blockchain,
-		mempool:     mempool,
-		aiClient:    aiClient,
+		blockchain: blockchain,
+		mempool:    mempool,
+		aiClient:   aiClient,
+		difficulty: difficulty,
+		port:       port,
 		walletStore: walletStore,
-		difficulty:  difficulty,
-		port:        port,
 	}
 }
 
@@ -114,7 +113,7 @@ func (s *Server) Start() error {
 	http.HandleFunc("/mine", corsMiddleware(s.handleMine))
 	http.HandleFunc("/balance/", corsMiddleware(s.handleGetBalance))
 	
-	// Wallet endpoints
+	// Wallet routes
 	http.HandleFunc("/api/wallet/generate", corsMiddleware(s.handleGenerateWallet))
 	http.HandleFunc("/api/wallet/list", corsMiddleware(s.handleListWallets))
 	http.HandleFunc("/api/wallet/transfer", corsMiddleware(s.handleTransfer))
@@ -122,7 +121,6 @@ func (s *Server) Start() error {
 	// Start server
 	addr := ":" + s.port
 	log.Printf("Starting API server on %s (CORS enabled)", addr)
-	log.Println("Wallet endpoints available at /api/wallet/*")
 	return http.ListenAndServe(addr, nil)
 }
 

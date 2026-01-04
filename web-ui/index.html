@@ -1,140 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Blockchain Explorer</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Blockchain UI</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .status.error { background: #ffebee; color: #c62828; }
+        .status.success { background: #e8f5e9; color: #2e7d32; }
+        .tabs { display: flex; gap: 10px; margin: 20px 0; border-bottom: 2px solid #ddd; }
+        .tab { padding: 10px 20px; background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #007bff; color: #007bff; font-weight: bold; }
+        .tab-content { display: none; padding: 20px 0; }
+        .tab-content.active { display: block; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        input, select { width: 100%; max-width: 400px; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .item { padding: 10px; margin: 5px 0; background: #f9f9f9; border-radius: 4px; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🔗 AI Blockchain Explorer</h1>
-            <p class="subtitle">Multi-language blockchain with AI scoring</p>
-        </header>
+        <h1>🔗 Blockchain Explorer</h1>
+        
+        <div id="connection-status" class="status error">
+            ❌ Not connected - Make sure Go node is running on port 8080
+        </div>
 
-        <nav class="tabs">
+        <div class="tabs">
             <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
             <button class="tab" onclick="showTab('blocks')">Blocks</button>
-            <button class="tab" onclick="showTab('transactions')">Transactions</button>
             <button class="tab" onclick="showTab('wallet')">Wallet</button>
             <button class="tab" onclick="showTab('mine')">Mine</button>
-        </nav>
+        </div>
 
-        <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active">
-            <h2>Blockchain Status</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Chain Height</h3>
-                    <p id="chain-height" class="stat-value">-</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Mempool Size</h3>
-                    <p id="mempool-size" class="stat-value">-</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Difficulty</h3>
-                    <p id="difficulty" class="stat-value">-</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Last Block Hash</h3>
-                    <p id="last-hash" class="stat-value-small">-</p>
-                </div>
-            </div>
-            <button onclick="refreshDashboard()" class="btn-primary">Refresh</button>
+            <h2>Dashboard</h2>
+            <p><strong>Height:</strong> <span id="height">-</span></p>
+            <p><strong>Mempool:</strong> <span id="mempool">-</span></p>
+            <p><strong>Difficulty:</strong> <span id="difficulty">-</span></p>
+            <button onclick="refreshDashboard()">Refresh</button>
         </div>
 
-        <!-- Blocks Tab -->
         <div id="blocks" class="tab-content">
-            <h2>Blockchain</h2>
-            <button onclick="loadBlocks()" class="btn-primary">Load Blocks</button>
-            <div id="blocks-list" class="blocks-container"></div>
+            <h2>Blocks</h2>
+            <button onclick="loadBlocks()">Load Blocks</button>
+            <div id="blocks-list"></div>
         </div>
 
-        <!-- Transactions Tab -->
-        <div id="transactions" class="tab-content">
-            <h2>Mempool Transactions</h2>
-            <button onclick="loadMempool()" class="btn-primary">Refresh Mempool</button>
-            <div id="mempool-list" class="transactions-container"></div>
-        </div>
-
-        <!-- Wallet Tab -->
         <div id="wallet" class="tab-content">
-            <h2>My Wallets</h2>
+            <h2>Wallet</h2>
+            <button onclick="generateWallet()">Generate Wallet</button>
+            <button onclick="loadWallets()">Load Wallets</button>
+            <div id="wallets-list"></div>
             
-            <!-- Wallet List -->
-            <div class="wallet-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3>Your Wallets</h3>
-                    <button onclick="loadWallets()" class="btn-primary">🔄 Refresh</button>
-                </div>
-                <button onclick="generateAddress()" class="btn-primary" style="margin-bottom: 15px;">➕ Generate New Wallet</button>
-                <div id="wallets-list" class="wallets-container"></div>
-            </div>
-
-            <!-- Send Section -->
-            <div class="wallet-section">
-                <h3>💸 Send Coins</h3>
-                <label for="send-from">From Wallet:</label>
-                <select id="send-from" class="input-field" onchange="updateSendFromBalance()">
-                    <option value="">Select a wallet...</option>
-                </select>
-                <div id="send-from-balance" style="margin: 5px 0; color: #666; font-size: 0.9em;"></div>
-                
-                <label for="send-to" style="margin-top: 15px; display: block;">To Address:</label>
-                <input type="text" id="send-to" placeholder="Enter recipient address" class="input-field">
-                <button onclick="fillRecipientFromWallets()" class="btn-primary" style="margin: 5px 0;">📋 Use Another Wallet</button>
-                
-                <label for="send-amount" style="margin-top: 15px; display: block;">Amount:</label>
-                <input type="number" id="send-amount" placeholder="0.00" class="input-field" step="0.01" min="0.01">
-                
-                <button onclick="sendTransaction()" class="btn-primary" style="margin-top: 15px; width: 100%;">🚀 Send Transaction</button>
-                <div id="send-result" class="result-box" style="margin-top: 15px;"></div>
-            </div>
-
-            <!-- Receive Section -->
-            <div class="wallet-section">
-                <h3>📥 Receive Coins</h3>
-                <label for="receive-address">Your Address:</label>
-                <select id="receive-address" class="input-field" onchange="updateReceiveInfo()">
-                    <option value="">Select a wallet to receive...</option>
-                </select>
-                <div id="receive-info" class="result-box" style="margin-top: 15px;">
-                    <p style="color: #666;">Select a wallet above to see your receive address</p>
-                </div>
-                <div id="receive-balance" style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 6px; display: none;">
-                    <strong>Current Balance:</strong> <span id="receive-balance-value">0</span> coins
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="wallet-section">
-                <h3>⚡ Quick Actions</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button onclick="checkAllBalances()" class="btn-primary">💰 Check All Balances</button>
-                    <button onclick="copyGenesisAddress()" class="btn-primary">📋 Copy Genesis Address</button>
-                </div>
-                <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.9em;">
-                    <strong>💡 Tip:</strong> The genesis address <code style="font-size: 0.8em;">0000000000000000000000000000000000000000</code> has 1000 coins. 
-                    You can send from it to your wallet!
-                </div>
-            </div>
+            <h3>Send Transaction</h3>
+            <select id="send-from"><option value="">Select wallet...</option></select>
+            <input type="text" id="send-to" placeholder="To address">
+            <input type="number" id="send-amount" placeholder="Amount" step="0.01">
+            <button onclick="sendTransaction()">Send</button>
+            <div id="send-result" class="result"></div>
         </div>
 
-        <!-- Mine Tab -->
         <div id="mine" class="tab-content">
             <h2>Mine Block</h2>
-            <p>Mine a new block from pending transactions in the mempool.</p>
-            <button onclick="mineBlock()" class="btn-mine">⛏️ Mine Block</button>
-            <div id="mine-result" class="result-box"></div>
+            <button onclick="mineBlock()">Mine Block</button>
+            <div id="mine-result" class="result"></div>
         </div>
-
-        <!-- Status Messages -->
-        <div id="status" class="status-message"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateStatus(connected, message) {
+            const status = document.getElementById('connection-status');
+            if (connected) {
+                status.className = 'status success';
+                status.textContent = '✅ ' + (message || 'Connected to server');
+            } else {
+                status.className = 'status error';
+                status.textContent = '❌ ' + (message || 'Not connected - Make sure Go node is running on port 8080');
+            }
+        }
+
+        async function checkConnection() {
+            try {
+                const res = await fetch(`${API_URL}/health`);
+                if (res.ok) {
+                    updateStatus(true);
+                    return true;
+                }
+            } catch (e) {
+                updateStatus(false, 'Cannot connect to server: ' + e.message);
+            }
+            updateStatus(false);
+            return false;
+        }
+
+        async function refreshDashboard() {
+            if (!await checkConnection()) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/chain`);
+                if (!res.ok) throw new Error('Failed to fetch chain data');
+                const data = await res.json();
+                document.getElementById('height').textContent = data.height || 0;
+                document.getElementById('difficulty').textContent = data.difficulty || 0;
+                
+                const mempoolRes = await fetch(`${API_URL}/mempool`);
+                if (mempoolRes.ok) {
+                    const mempoolData = await mempoolRes.json();
+                    document.getElementById('mempool').textContent = mempoolData.count || 0;
+                }
+                updateStatus(true, 'Dashboard refreshed');
+            } catch (e) {
+                updateStatus(false, 'Error: ' + e.message);
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function loadBlocks() {
+            if (!await checkConnection()) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/blocks`);
+                if (!res.ok) throw new Error('Failed to fetch blocks');
+                const data = await res.json();
+                const list = document.getElementById('blocks-list');
+                list.innerHTML = '';
+                
+                if (data.blocks && data.blocks.length > 0) {
+                    data.blocks.forEach(block => {
+                        const div = document.createElement('div');
+                        div.className = 'item';
+                        div.innerHTML = `<strong>Block #${block.index}</strong><br>Hash: ${block.hash.substring(0, 40)}...<br>Transactions: ${block.transactions ? block.transactions.length : 0}`;
+                        list.appendChild(div);
+                    });
+                } else {
+                    list.innerHTML = '<p>No blocks found. Mine the first block!</p>';
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function generateWallet() {
+            if (!await checkConnection()) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/wallet/generate`);
+                if (!res.ok) throw new Error('Failed to generate wallet');
+                const data = await res.json();
+                alert('Wallet created!\nAddress: ' + data.address);
+                loadWallets();
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function loadWallets() {
+            if (!await checkConnection()) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/wallet/list`);
+                if (!res.ok) throw new Error('Failed to fetch wallets');
+                const data = await res.json();
+                const list = document.getElementById('wallets-list');
+                const select = document.getElementById('send-from');
+                
+                list.innerHTML = '';
+                select.innerHTML = '<option value="">Select wallet...</option>';
+                
+                if (data.addresses && data.addresses.length > 0) {
+                    for (const addr of data.addresses) {
+                        try {
+                            const balanceRes = await fetch(`${API_URL}/balance/${addr}`);
+                            const balanceData = await balanceRes.json();
+                            const balance = balanceData.balance || 0;
+                            
+                            const div = document.createElement('div');
+                            div.className = 'item';
+                            div.innerHTML = `<strong>${addr.substring(0, 30)}...</strong><br>Balance: ${balance} coins`;
+                            list.appendChild(div);
+                            
+                            const option = document.createElement('option');
+                            option.value = addr;
+                            option.textContent = `${addr.substring(0, 20)}... (${balance} coins)`;
+                            select.appendChild(option);
+                        } catch (e) {
+                            console.error('Error loading balance for', addr, e);
+                        }
+                    }
+                } else {
+                    list.innerHTML = '<p>No wallets. Generate one first!</p>';
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function sendTransaction() {
+            if (!await checkConnection()) return;
+            
+            const from = document.getElementById('send-from').value;
+            const to = document.getElementById('send-to').value;
+            const amount = parseFloat(document.getElementById('send-amount').value);
+            const result = document.getElementById('send-result');
+            
+            if (!from || !to || !amount || amount <= 0) {
+                result.className = 'result status error';
+                result.textContent = 'Please fill all fields with valid values';
+                return;
+            }
+            
+            result.textContent = 'Sending...';
+            result.className = 'result';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/wallet/transfer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from, to, amount })
+                });
+                
+                const data = await res.json();
+                if (res.ok && !data.error) {
+                    result.className = 'result status success';
+                    result.textContent = '✅ Success! Transaction ID: ' + data.txid;
+                    document.getElementById('send-amount').value = '';
+                    document.getElementById('send-to').value = '';
+                    loadWallets();
+                } else {
+                    result.className = 'result status error';
+                    result.textContent = '❌ Error: ' + (data.error || 'Transaction failed');
+                }
+            } catch (e) {
+                result.className = 'result status error';
+                result.textContent = '❌ Error: ' + e.message;
+            }
+        }
+
+        async function mineBlock() {
+            if (!await checkConnection()) return;
+            
+            const result = document.getElementById('mine-result');
+            result.textContent = 'Mining...';
+            result.className = 'result';
+            
+            try {
+                const res = await fetch(`${API_URL}/mine`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok && !data.error) {
+                    result.className = 'result status success';
+                    result.textContent = '✅ Block mined! Block #' + data.block.index + ' in ' + data.time;
+                    refreshDashboard();
+                    loadBlocks();
+                } else {
+                    result.className = 'result status error';
+                    result.textContent = '❌ Error: ' + (data.error || 'Mining failed');
+                }
+            } catch (e) {
+                result.className = 'result status error';
+                result.textContent = '❌ Error: ' + e.message;
+            }
+        }
+
+        // Check connection on load and every 5 seconds
+        checkConnection();
+        setInterval(checkConnection, 5000);
+        refreshDashboard();
+    </script>
 </body>
 </html>
-

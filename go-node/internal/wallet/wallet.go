@@ -231,3 +231,6 @@ func (e *WalletError) Error() string {
 	return e.Message
 }
 
+
+
+

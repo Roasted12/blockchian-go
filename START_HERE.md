@@ -34,9 +34,22 @@ The node will:
 - Start the REST API on port 8080
 - Connect to AI scorer for transaction scoring
 
-## Step 3: Open the Web UI
+## Step 3: Start the Java Wallet Service
 
-**Note**: Wallet functionality is now built into the Go node! No Java needed.
+```bash
+cd java-wallet
+mvn spring-boot:run
+```
+
+The wallet service will start on port 8081.
+
+**Note**: The Java wallet now:
+- ✅ Stores private keys securely (in-memory)
+- ✅ Builds and signs complete transactions
+- ✅ Manages multiple wallets
+- ✅ Handles transaction creation with proper signing
+
+## Step 4: Open the Web UI
 
 ### ⚠️ Important: Use a Web Server
 **Do NOT open `index.html` directly!** Use a web server to avoid CORS errors.
@@ -78,14 +91,14 @@ The web UI provides a complete interface for:
 curl http://localhost:8080/health
 ```
 
-### 2. Generate a Wallet Address
+### 2. Generate a Wallet Address (Java)
 ```bash
-curl http://localhost:8080/api/wallet/generate
+curl http://localhost:8081/api/wallet/generate
 ```
 
 ### 3. Check Balance
 ```bash
-curl http://localhost:8080/balance/0000000000000000000000000000000000000000
+curl http://localhost:8081/api/wallet/balance/0000000000000000000000000000000000000000
 ```
 
 ### 4. Mine a Block
@@ -102,7 +115,8 @@ curl http://localhost:8080/blocks
 
 ```
 ┌─────────────┐
-│  Web UI     │  ← User interface
+│ Java Wallet │  ← Creates & signs transactions
+│  (Port 8081)│
 └──────┬──────┘
        │
        │ REST API
@@ -110,11 +124,7 @@ curl http://localhost:8080/blocks
 ┌─────────────┐     ┌─────────────┐
 │  Go Node    │────▶│ AI Scorer   │  ← Scores transactions
 │  (Port 8080)│     │  (Port 5000)│
-│             │     └─────────────┘
-│  - Blockchain
-│  - Wallet   │  ← Wallet functionality built-in!
-│  - Mining
-└─────────────┘
+└─────────────┘     └─────────────┘
        │
        │ Validates, mines blocks
        ▼

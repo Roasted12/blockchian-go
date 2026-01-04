@@ -8,7 +8,7 @@
 
 // Configuration
 const GO_NODE_URL = 'http://localhost:8080';
-// Note: Wallet functionality is now in Go node, no Java needed!
+const JAVA_WALLET_URL = 'http://localhost:8081';
 
 // Tab management
 function showTab(tabName) {
@@ -196,7 +196,7 @@ let walletBalances = {};
 // Wallet functions
 async function generateAddress() {
     try {
-        const response = await fetch(`${GO_NODE_URL}/api/wallet/generate`);
+        const response = await fetch(`${JAVA_WALLET_URL}/api/wallet/generate`);
         const data = await response.json();
         
         if (data.error) {
@@ -214,7 +214,7 @@ async function generateAddress() {
 
 async function loadWallets() {
     try {
-        const response = await fetch(`${GO_NODE_URL}/api/wallet/list`);
+        const response = await fetch(`${JAVA_WALLET_URL}/api/wallet/list`);
         const data = await response.json();
         
         wallets = data.addresses || [];
@@ -374,7 +374,7 @@ async function sendTransaction() {
             amount: amount
         };
         
-        const response = await fetch(`${GO_NODE_URL}/api/wallet/transfer`, {
+        const response = await fetch(`${JAVA_WALLET_URL}/api/wallet/transfer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

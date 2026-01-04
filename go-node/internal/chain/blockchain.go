@@ -31,6 +31,11 @@ func NewBlockchain(genesis *Block) *Blockchain {
 
 	// Apply genesis transactions to UTXO set
 	for _, tx := range genesis.Transactions {
+		// Verify transaction has an ID (should be computed by NewTransaction)
+		if tx.ID == "" {
+			// This shouldn't happen, but if it does, log it
+			// The transaction ID should be computed when the transaction is created
+		}
 		utxo.ApplyTransaction(&tx)
 	}
 

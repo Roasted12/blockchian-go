@@ -1,16 +1,17 @@
 # AI-Blockchain Learning Project
 
 A multi-language blockchain implementation for learning purposes, featuring:
-- **Go**: Core blockchain node with Proof-of-Work consensus + built-in wallet
+- **Go**: Core blockchain node with Proof-of-Work consensus
+- **Java**: Wallet and explorer service (Spring Boot)
 - **Python**: AI scoring service for transaction anomaly detection
 
 ## Project Structure
 
 ```
 ai-blockchain/
-├── go-node/              # Core blockchain node + wallet (Go)
+├── go-node/              # Core blockchain node (Go)
+├── java-wallet/          # Wallet & explorer service (Java Spring Boot)
 ├── ai-scorer/            # AI scoring service (Python Flask)
-├── web-ui/               # Web interface (HTML/JS)
 └── schemas/              # Shared data schemas
 ```
 
@@ -22,8 +23,13 @@ ai-blockchain/
 - ✅ Transaction validation
 - ✅ Mempool management
 - ✅ REST API
-- ✅ **Built-in wallet service** (key generation, transaction signing)
 - ✅ AI integration (advisory scoring)
+
+### Java Wallet
+- ✅ Key pair generation (ECDSA)
+- ✅ Transaction creation and signing
+- ✅ Balance queries
+- ✅ Integration with Go node
 
 ### Python AI Scorer
 - ✅ Transaction anomaly detection (IsolationForest)
@@ -34,7 +40,9 @@ ai-blockchain/
 
 ### Prerequisites
 - Go 1.21+
+- Java 17+
 - Python 3.9+
+- Maven 3.8+
 
 ### Running the Go Node
 
@@ -57,7 +65,12 @@ pip install -r requirements.txt
 python app/api.py
 ```
 
-**Note**: Wallet functionality is now built into the Go node! No Java needed.
+### Running the Java Wallet
+
+```bash
+cd java-wallet
+mvn spring-boot:run
+```
 
 ## API Endpoints
 
@@ -69,8 +82,10 @@ python app/api.py
 - `GET /balance/:addr` - Get balance for address
 - `POST /transactions` - Submit new transaction
 - `POST /mine` - Mine a new block
-- `GET /api/wallet/generate` - Generate new wallet
-- `GET /api/wallet/list` - List all wallets
+
+### Java Wallet (port 8081)
+- `GET /api/wallet/generate` - Generate new key pair
+- `GET /api/wallet/balance/:address` - Get balance
 - `POST /api/wallet/transfer` - Create and submit transaction
 
 ### Python AI Scorer (port 5000)
@@ -85,10 +100,10 @@ python app/api.py
    - UTXO model
    - Proof-of-Work consensus
 
-2. **Cryptographic Operations**
-   - ECDSA key generation and signing
-   - Transaction signing with private keys
-   - Address derivation from public keys
+2. **Cross-Language Integration**
+   - Go ↔ Java communication
+   - Shared data schemas
+   - Cryptographic compatibility
 
 3. **AI Integration**
    - Feature extraction

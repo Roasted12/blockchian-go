@@ -46,31 +46,57 @@ func main() {
 	log.Println("Starting blockchain node...")
 	log.Printf("Port: %s, Difficulty: %d", *port, *difficulty)
 
-	// Create genesis block
-	// Genesis block is special: it has no previous block
-	// It typically contains initial coin distribution
-	genesisTx, err := createGenesisTransaction()
+	// Initialize wallet store FIRST (before creating genesis)
+	walletStore := wallet.NewWalletStore()
+	log.Println("Wallet store initialized")
+	
+	// Create a default wallet for genesis coins (so users can actually spend them)
+	// This makes the genesis coins usable from the start
+	defaultWallet, err := walletStore.GenerateWallet()
+	if err != nil {
+		log.Fatalf("Failed to create default wallet for genesis: %v", err)
+	}
+	log.Printf("Default wallet created for genesis: %s", defaultWallet.Address)
+
+	// Create genesis transaction with the default wallet address
+	// This allows users to actually spend the genesis coins
+	genesisOutput := chain.TxOut{
+		Address: defaultWallet.Address,
+		Amount:  1000.0,
+	}
+	
+	genesisTx, err := chain.NewTransaction(
+		[]chain.TxIn{}, // No inputs (genesis creates coins)
+		[]chain.TxOut{genesisOutput},
+	)
 	if err != nil {
 		log.Fatalf("Failed to create genesis transaction: %v", err)
 	}
+	
+	// Genesis transaction doesn't need a signature
+	genesisTx.Signature = "genesis"
+	genesisTx.PubKey = "genesis"
 
 	genesisBlock := chain.NewBlock(
 		0,                    // Index 0 (first block)
 		"0",                  // Previous hash (none, so use "0")
-		[]chain.Transaction{genesisTx}, // Genesis transaction
+		[]chain.Transaction{*genesisTx}, // Genesis transaction
 	)
 
 	// Initialize blockchain with genesis block
 	blockchain := chain.NewBlockchain(genesisBlock)
 	log.Printf("Genesis block created: %s", genesisBlock.Hash)
+	
+	// Verify genesis coins were added to UTXO set
+	genesisBalance := blockchain.UTXO.BalanceOf(defaultWallet.Address)
+	log.Printf("Default wallet (genesis recipient) balance: %.2f coins", genesisBalance)
+	if genesisBalance == 0 {
+		log.Printf("WARNING: Genesis coins not found in UTXO set!")
+	}
 
 	// Initialize mempool
 	mempool := chain.NewMempool()
 	log.Println("Mempool initialized")
-
-	// Initialize wallet store
-	walletStore := wallet.NewWalletStore()
-	log.Println("Wallet store initialized")
 
 	// Initialize AI client (optional)
 	var aiClient *ai.Client
@@ -84,7 +110,7 @@ func main() {
 	}
 
 	// Create and start API server
-	server := api.NewServer(blockchain, mempool, aiClient, walletStore, *difficulty, *port)
+	server := api.NewServer(blockchain, mempool, aiClient, *difficulty, *port, walletStore)
 
 	// Start server in a goroutine
 	go func() {
@@ -102,11 +128,6 @@ func main() {
 	log.Println("  GET  /balance/:addr  - Get balance for address")
 	log.Println("  POST /transactions    - Submit new transaction")
 	log.Println("  POST /mine            - Mine a new block")
-	log.Println("")
-	log.Println("Wallet endpoints:")
-	log.Println("  GET  /api/wallet/generate - Generate new wallet")
-	log.Println("  GET  /api/wallet/list    - List all wallets")
-	log.Println("  POST /api/wallet/transfer - Create and submit transaction")
 
 	// Wait for interrupt signal (Ctrl+C)
 	sigChan := make(chan os.Signal, 1)

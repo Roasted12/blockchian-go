@@ -1,51 +1,33 @@
-# AI-Blockchain Learning Project
+# AI-Blockchain
 
-A multi-language blockchain implementation for learning purposes, featuring:
-- **Go**: Core blockchain node with Proof-of-Work consensus
-- **Java**: Wallet and explorer service (Spring Boot)
-- **Python**: AI scoring service for transaction anomaly detection
+A multi-service blockchain prototype with a Go node, Java wallet service, and Python AI scoring service. The Go node provides a UTXO-based ledger, Proof-of-Work mining, and a REST API. The wallet service handles key management and transaction creation, while the AI service provides advisory transaction scoring.
 
-## Project Structure
+## Components
+
+- **Go Node**: blockchain core, mempool, PoW mining, REST API
+- **Java Wallet**: key generation, transaction creation/signing
+- **Python AI Scorer**: anomaly and fee adequacy scoring
+
+## Project Layout
 
 ```
 ai-blockchain/
-├── go-node/              # Core blockchain node (Go)
-├── java-wallet/          # Wallet & explorer service (Java Spring Boot)
-├── ai-scorer/            # AI scoring service (Python Flask)
-└── schemas/              # Shared data schemas
+├── go-node/
+├── java-wallet/
+├── ai-scorer/
+└── schemas/
 ```
 
-## Features
+## Requirements
 
-### Go Node
-- ✅ UTXO-based transaction model
-- ✅ Proof-of-Work consensus
-- ✅ Transaction validation
-- ✅ Mempool management
-- ✅ REST API
-- ✅ AI integration (advisory scoring)
-
-### Java Wallet
-- ✅ Key pair generation (ECDSA)
-- ✅ Transaction creation and signing
-- ✅ Balance queries
-- ✅ Integration with Go node
-
-### Python AI Scorer
-- ✅ Transaction anomaly detection (IsolationForest)
-- ✅ Fee adequacy estimation
-- ✅ REST API for scoring
-
-## Getting Started
-
-### Prerequisites
 - Go 1.21+
 - Java 17+
 - Python 3.9+
 - Maven 3.8+
 
-### Running the Go Node
+## Quick Start
 
+### Go Node
 ```bash
 cd go-node
 go mod tidy
@@ -57,16 +39,14 @@ With AI scoring:
 go run cmd/node/main.go -port 8080 -difficulty 4 -ai-url http://localhost:5000 -ai-timeout 5
 ```
 
-### Running the Python AI Scorer
-
+### Python AI Scorer
 ```bash
 cd ai-scorer
 pip install -r requirements.txt
 python app/api.py
 ```
 
-### Running the Java Wallet
-
+### Java Wallet
 ```bash
 cd java-wallet
 mvn spring-boot:run
@@ -74,55 +54,20 @@ mvn spring-boot:run
 
 ## API Endpoints
 
-### Go Node (port 8080)
-- `GET /health` - Health check
-- `GET /blocks` - Get all blocks
-- `GET /chain` - Get blockchain info
-- `GET /mempool` - Get pending transactions
-- `GET /balance/:addr` - Get balance for address
-- `POST /transactions` - Submit new transaction
-- `POST /mine` - Mine a new block
+### Go Node (8080)
+- `GET /health`
+- `GET /blocks`
+- `GET /chain`
+- `GET /mempool`
+- `GET /balance/:addr`
+- `POST /transactions`
+- `POST /mine`
 
-### Java Wallet (port 8081)
-- `GET /api/wallet/generate` - Generate new key pair
-- `GET /api/wallet/balance/:address` - Get balance
-- `POST /api/wallet/transfer` - Create and submit transaction
+### Java Wallet (8081)
+- `GET /api/wallet/generate`
+- `GET /api/wallet/balance/:address`
+- `POST /api/wallet/transfer`
 
-### Python AI Scorer (port 5000)
-- `GET /health` - Health check
-- `POST /score/tx` - Score transaction
-
-## Learning Objectives
-
-1. **Blockchain Fundamentals**
-   - Block structure and chaining
-   - Transaction validation
-   - UTXO model
-   - Proof-of-Work consensus
-
-2. **Cross-Language Integration**
-   - Go ↔ Java communication
-   - Shared data schemas
-   - Cryptographic compatibility
-
-3. **AI Integration**
-   - Feature extraction
-   - Anomaly detection
-   - Advisory scoring (non-consensus)
-
-4. **System Design**
-   - Microservices architecture
-   - REST API design
-   - Error handling and resilience
-
-## Notes
-
-- This is a **learning project** - not production-ready
-- AI scoring is **advisory only** - does not affect consensus
-- Simplified implementations for educational purposes
-- Extensive comments throughout codebase
-
-## License
-
-Educational use only.
-
+### Python AI Scorer (5000)
+- `GET /health`
+- `POST /score/tx`

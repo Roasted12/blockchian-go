@@ -10,39 +10,15 @@ import (
 	"math/big"
 )
 
-//
-// -----------------------------
-// KEY GENERATION
-// -----------------------------
-//
-
-// GenerateKeyPair creates a new ECDSA private/public key pair
-// using the P-256 elliptic curve.
 func GenerateKeyPair() (*ecdsa.PrivateKey, error) {
 	return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 }
 
-//
-// -----------------------------
-// INTERNAL HASHING HELPER
-// -----------------------------
-//
-
-// hashMessage hashes arbitrary bytes using SHA-256.
-// ECDSA always signs hashes, never raw data.
 func hashMessage(msg []byte) []byte {
 	hash := sha256.Sum256(msg)
 	return hash[:]
 }
 
-//
-// -----------------------------
-// SIGNING
-// -----------------------------
-//
-
-// SignMessage signs canonical transaction bytes using a private key.
-// Returns a hex-encoded signature (r || s).
 func SignMessage(priv *ecdsa.PrivateKey, msg []byte) (string, error) {
 	hashed := hashMessage(msg)
 
@@ -58,13 +34,6 @@ func SignMessage(priv *ecdsa.PrivateKey, msg []byte) (string, error) {
 	return hex.EncodeToString(signature), nil
 }
 
-//
-// -----------------------------
-// PUBLIC KEY ENCODING
-// -----------------------------
-//
-
-// EncodePublicKey serializes an ECDSA public key into hex format.
 func EncodePublicKey(pub *ecdsa.PublicKey) string {
 	xBytes := pub.X.Bytes()
 	yBytes := pub.Y.Bytes()
@@ -73,10 +42,6 @@ func EncodePublicKey(pub *ecdsa.PublicKey) string {
 	return hex.EncodeToString(combined)
 }
 
-//
-// DecodePublicKey deserializes a hex-encoded public key
-// back into an ECDSA public key structure.
-//
 func DecodePublicKey(hexKey string) (*ecdsa.PublicKey, error) {
 	bytes, err := hex.DecodeString(hexKey)
 	if err != nil {
@@ -99,31 +64,9 @@ func DecodePublicKey(hexKey string) (*ecdsa.PublicKey, error) {
 	}, nil
 }
 
-//
-// -----------------------------
-// SIGNATURE VERIFICATION
-// -----------------------------
-//
-
-// VerifySignature verifies that data was signed by the owner of the provided public key.
-//
-// Parameters:
-// - data: The canonical bytes that were signed (must match exactly what was signed)
-// - signature: Hex-encoded signature (r || s)
-// - pubKeyHex: Hex-encoded public key
-//
-// Returns:
-// - true if signature is valid
-// - false if signature is invalid
-//
-// This function avoids importing the chain package, breaking the import cycle.
-// The chain package computes canonical bytes and calls this function.
-//
 func VerifySignature(data []byte, signature, pubKeyHex string) (bool, error) {
-	// Hash the data (ECDSA signs hashes, not raw data)
 	hashed := hashMessage(data)
 
-	// Decode signature
 	sigBytes, err := hex.DecodeString(signature)
 	if err != nil {
 		return false, err
@@ -138,12 +81,10 @@ func VerifySignature(data []byte, signature, pubKeyHex string) (bool, error) {
 	r := new(big.Int).SetBytes(sigBytes[:mid])
 	s := new(big.Int).SetBytes(sigBytes[mid:])
 
-	// Decode public key
 	pub, err := DecodePublicKey(pubKeyHex)
 	if err != nil {
 		return false, err
 	}
 
-	// Verify signature
 	return ecdsa.Verify(pub, hashed, r, s), nil
 }
